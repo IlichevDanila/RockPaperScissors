@@ -28,7 +28,7 @@ app.get('/connect', function (req, res) {
         return;
     }
     var nickname = req.query.nickname.toString();
-    if (!/^[A-z0-9]+$/.test(nickname)) {
+    if (!/^[A-z0-9А-яЁё]+$/.test(nickname)) {
         res.send({ error: 'Nickname must include only letters or numbers' });
         return;
     }

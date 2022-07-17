@@ -1,6 +1,12 @@
 import React from 'react';
 import styled from "styled-components";
-import {Game, Player, StatusType} from "../utils/types";
+import {Game, PlayerToken, StatusType} from "../utils/types";
+import Button from "./form/button";
+
+const SignContainer = styled.div`
+  display: grid;
+  gap: 10px;
+`;
 
 const SignStyle = styled.div`
   border: 4px double white;
@@ -23,12 +29,21 @@ const Line = styled.div`
   margin: 4px;
 `;
 
-const Sign = (props: {status: StatusType, id: Game['id'], token: Player['token']}) => {
-    return <SignStyle>
-        ID игры: <span>{props.id}</span>
-        <Line />
-        Токен: <span>{props.token}</span>
-    </SignStyle>
+const Sign = (props: {status: StatusType, id: Game['id'], token: PlayerToken}) => {
+
+    const toMain = () => {
+        window.open('/', '_self');
+    }
+
+    return (
+        <SignContainer>
+            <Button onClick={toMain}>На главную</Button>
+            <SignStyle>
+            ID игры: <span>{props.id}</span>
+            <Line />
+            Ник: <span>{props.token}</span>
+        </SignStyle>
+    </SignContainer>)
 }
 
 export default Sign;

@@ -3,6 +3,8 @@ import {useState} from "react";
 import CreateGame from "../api/create_game";
 import Connect from "../api/connect";
 import {Game} from "../utils/types";
+import Input from "../components/form/input";
+import Button from "../components/form/button";
 
 const MainStyled = styled.div`
 	display: grid;
@@ -74,31 +76,6 @@ const Switcher = styled.div`
 	}
 `;
 
-const Button = styled.div`
-	padding: 4px 20px;
-	background: white;
-	border: 2px solid black;
-	border-radius: 20px;
-	cursor: pointer;
-	text-align: center;
-	transition: all 0.2s;
-	user-select: none;
-	
-	&:hover {
-		background: black;
-		color: white;
-		font-weight: 700;
-	}
-`;
-
-const Input = styled.input`
-	font-size: 20px;
-	text-align: center;
-	font-family: monospace;
-	border: 2px dashed black;
-	border-radius: 6px;
-`;
-
 function Main() {
 
 	let [pos, setPos] = useState(0);
@@ -132,14 +109,25 @@ function Main() {
 		}
 	}
 
+	const errorCount = () => {
+		return !((/^[1-9]\d*$/.test(count) && parseInt(count) >= 2) || count == '');
+	}
+
+	const errorNickname = () => {
+		return !(/^[0-9A-zА-яЁё]*$/.test(nickname));
+	}
+
   return (
     <MainStyled>
 		<NicknameContainer>
-			<Input type="text" placeholder="Ник" onInput={
-				(event: any) => {
-					setNickname(event.target.value);
-				}
-			}/>
+			<Input type="text" placeholder="Ник"
+				   className={errorNickname() ? 'error' : ''}
+				   onInput={
+					   (event: any) => {
+						   setNickname(event.target.value);
+					   }
+				   }
+			/>
 		</NicknameContainer>
     	<SwitcherContainer>
     		<span className={'left'}>Создать игру</span>
@@ -150,11 +138,14 @@ function Main() {
     	</SwitcherContainer>
 		<InterfaceContainer>
 			<div className={pos == 0 ? 'active' : 'hide'}>
-				<Input type="text" placeholder="Число игроков" onInput={
-					(event: any) => {
-						setCount(event.target.value);
-					}
-				}/>
+				<Input type="text" placeholder="Число игроков"
+					   className={errorCount() ? 'error' : ''}
+					   onInput={
+						   (event: any) => {
+							   setCount(event.target.value);
+						   }
+					   }
+				/>
 				<Button onClick={createGame}>Создать</Button>
 			</div>
 			<div className={pos == 1 ? 'active' : 'hide'}>

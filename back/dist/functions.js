@@ -18,8 +18,8 @@ function GetPairByPlayer(round, player_token) {
     return round.pairs.find(function (el) { return (el.player1.token == player_token || el.player2.token == player_token); });
 }
 exports.GetPairByPlayer = GetPairByPlayer;
-function GetGameById(key) {
-    return exports.games.find(function (el) { return el.id == key; });
+function GetGameById(id) {
+    return exports.games.find(function (el) { return el.id == id; });
 }
 exports.GetGameById = GetGameById;
 function GetCountToStart(game) {

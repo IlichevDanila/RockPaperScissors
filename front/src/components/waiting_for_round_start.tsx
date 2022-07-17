@@ -1,8 +1,8 @@
 import React from 'react';
 import Round_result from "./round_result";
-import {Game, Player, StatusWaitingForRoundStart} from "../utils/types";
+import {Game, PlayerToken, StatusWaitingForRoundStart} from "../utils/types";
 
-const WaitingForRoundStart = (props: {status: StatusWaitingForRoundStart, id: Game['id'], token: Player['token']}) => {
+const WaitingForRoundStart = (props: {status: StatusWaitingForRoundStart, id: Game['id'], token: PlayerToken}) => {
 
     let {status, id, token} = props;
 

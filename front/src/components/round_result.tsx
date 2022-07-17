@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from "styled-components";
-import {Game, Player, StatusLose, StatusWaitingForRoundStart} from "../utils/types";
+import {Game, PlayerToken, StatusLose, StatusWaitingForRoundStart} from "../utils/types";
 
 const RoundResultStyle = styled.div`
   text-align: center;
@@ -14,18 +14,18 @@ const ResultTable = styled.div`
   padding: 4px 0;
 `;
 
-const PlayerToken = styled.span`
+const PlayerNickname = styled.span`
   background: #ddd;
   padding: 0px 10px;
   margin: 10px;
   border-radius: 5px;
 `;
 
-const PlayerTokenWinner = styled(PlayerToken)`
+const PlayerNicknameWinner = styled(PlayerNickname)`
   background: #f3ff67;
 `;
 
-const RoundResult = (props: {status: StatusWaitingForRoundStart | StatusLose, id: Game['id'], token: Player['token']}) => {
+const RoundResult = (props: {status: StatusWaitingForRoundStart | StatusLose, id: Game['id'], token: PlayerToken}) => {
     let {status, id, token} = props;
 
     return (
@@ -51,11 +51,11 @@ const RoundResult = (props: {status: StatusWaitingForRoundStart | StatusLose, id
                             break;
                     }
                     return <div key={i}>
-                        <PlayerToken>{pair.player1.nickname}</PlayerToken>
+                        <PlayerNickname>{pair.player1.nickname}</PlayerNickname>
                         -
-                        <PlayerToken>{pair.player2.nickname}</PlayerToken>
+                        <PlayerNickname>{pair.player2.nickname}</PlayerNickname>
                         :
-                        <PlayerTokenWinner>{winner_nickname}</PlayerTokenWinner></div>
+                        <PlayerNicknameWinner>{winner_nickname}</PlayerNicknameWinner></div>
                 })}
             </ResultTable>
         </RoundResultStyle>

@@ -8,7 +8,7 @@ import Lose from "../components/lose";
 import End from "../components/end";
 import Sign from "../components/sign";
 import styled from "styled-components";
-import {StatusType} from "../utils/types";
+import {GameWithoutRounds, Player, StatusType} from "../utils/types";
 
 const Container = styled.div`
   display: grid;
@@ -41,6 +41,17 @@ const Game = () => {
         Status(id, token)
             .then((resp) => {
                 setStatus(resp.data as StatusType);
+
+                /*setStatus({
+                    state: 'waiting_for_move',
+                    game: {
+                        id: '123',
+                        count: 2,
+                        players: [],
+                        time: 45,
+                        move: 1
+                    }
+                });*/
             })
             .catch((error) => console.log(error));
     }

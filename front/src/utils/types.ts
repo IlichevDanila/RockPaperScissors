@@ -1,6 +1,8 @@
 
+export type PlayerToken = string;
+
 export interface Player {
-    token: string;
+    //token: string;
     nickname: string;
 }
 

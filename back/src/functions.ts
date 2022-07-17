@@ -8,9 +8,9 @@ export function GetPairByPlayer(round: Round, player_token: Player['token']):Pai
     return round.pairs.find((el) => (el.player1.token == player_token || el.player2.token == player_token));
 }
 
-export function GetGameById(key: Game['id']):Game|undefined
+export function GetGameById(id: Game['id']):Game|undefined
 {
-    return games.find((el) => el.id == key);
+    return games.find((el) => el.id == id);
 }
 
 export function GetCountToStart(game: Game):number
