@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from "styled-components";
 import {Game, PlayerToken, StatusLose, StatusWaitingForRoundStart} from "../utils/types";
+import {getPlayer} from "../utils/functions";
 
 const RoundResultStyle = styled.div`
   text-align: center;
@@ -38,22 +39,22 @@ const RoundResult = (props: {status: StatusWaitingForRoundStart | StatusLose, id
                     switch (pair.winner)
                     {
                         case 1:
-                            winner_nickname = pair.player1.nickname;
+                            winner_nickname = getPlayer(pair.player1).nickname;
                             break;
                         case 2:
-                            winner_nickname = pair.player2.nickname;
+                            winner_nickname = getPlayer(pair.player2).nickname;
                             break;
                         case 3:
-                            winner_nickname = pair.player1.nickname + ', ' + pair.player2.nickname;
+                            winner_nickname = getPlayer(pair.player1).nickname + ', ' + getPlayer(pair.player2).nickname;
                             break;
                         case 0:
                             winner_nickname = '-';
                             break;
                     }
                     return <div key={i}>
-                        <PlayerNickname>{pair.player1.nickname}</PlayerNickname>
+                        <PlayerNickname>{getPlayer(pair.player1).nickname}</PlayerNickname>
                         -
-                        <PlayerNickname>{pair.player2.nickname}</PlayerNickname>
+                        <PlayerNickname>{getPlayer(pair.player2).nickname}</PlayerNickname>
                         :
                         <PlayerNicknameWinner>{winner_nickname}</PlayerNicknameWinner></div>
                 })}

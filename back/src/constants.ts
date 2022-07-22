@@ -7,3 +7,7 @@ export const WinRules = {
 };
 
 export const PORT = 3000;
+export const DB = {
+    user: 'root',
+    password: 'spitintoeternity1572080'
+}

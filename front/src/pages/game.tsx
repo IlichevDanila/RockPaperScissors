@@ -8,7 +8,7 @@ import Lose from "../components/lose";
 import End from "../components/end";
 import Sign from "../components/sign";
 import styled from "styled-components";
-import {GameWithoutRounds, Player, StatusType} from "../utils/types";
+import {StatusType} from "../utils/types";
 
 const Container = styled.div`
   display: grid;
@@ -37,11 +37,11 @@ const Game = () => {
 
     let [status, setStatus] = useState<StatusType>({state: 'loading'});
 
-    const updateStatus = () => {
+    const updateStatus = ():any => {
         Status(id, token)
             .then((resp) => {
                 setStatus(resp.data as StatusType);
-
+                updateStatus();
                 /*setStatus({
                     state: 'waiting_for_move',
                     game: {
@@ -53,10 +53,13 @@ const Game = () => {
                     }
                 });*/
             })
-            .catch((error) => console.log(error));
+            .catch((error) => {
+                console.log(error);
+                //updateStatus();
+            });
     }
 
-    useEffect(() => { updateStatus(); setInterval(updateStatus, 1000) }, []);
+    useEffect(() => { updateStatus() }, []);
 
     let Interface = INTERFACES[status.state] ? INTERFACES[status.state] : INTERFACES['loading'];
 

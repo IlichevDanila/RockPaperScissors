@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from "styled-components";
 import {Game, Pair, PlayerToken, StatusEnd} from "../utils/types";
+import {getPlayer} from "../utils/functions";
 
 const EndStyle = styled.div`
   text-align: center;
@@ -22,13 +23,13 @@ const End = (props: {status: StatusEnd, id: Game['id'], token: PlayerToken}) => 
     if (pair) {
         switch (pair.winner) {
             case 1:
-                winner_nickname = pair.player1.nickname;
+                winner_nickname = getPlayer(pair.player1).nickname;
                 break;
             case 2:
-                winner_nickname = pair.player2.nickname;
+                winner_nickname = getPlayer(pair.player2).nickname;
                 break;
             case 3:
-                winner_nickname = pair.player1.nickname + ', ' + pair.player2.nickname;
+                winner_nickname = getPlayer(pair.player1).nickname + ', ' + getPlayer(pair.player2).nickname;
                 break;
             case 0:
                 winner_nickname = '-';

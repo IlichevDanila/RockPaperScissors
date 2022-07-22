@@ -7,8 +7,8 @@ export interface Player {
 }
 
 export interface Pair {
-    player1: Player;
-    player2: Player;
+    player1: Player | undefined;
+    player2: Player | undefined;
     player1_move: 0 | 1 | 2 | 3;
     player2_move: 0 | 1 | 2 | 3;
     winner: 0 | 1 | 2 | 3;
