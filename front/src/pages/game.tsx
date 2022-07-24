@@ -9,6 +9,8 @@ import End from "../components/end";
 import Sign from "../components/sign";
 import styled from "styled-components";
 import {StatusType} from "../utils/types";
+import {AxiosError} from "axios";
+import StatusSubscribe from "../api/statusSubscribe";
 
 const Container = styled.div`
   display: grid;
@@ -33,40 +35,49 @@ const INTERFACES:any = {
 const Game = () => {
     const queryParams = new URLSearchParams(window.location.search);
     const id = queryParams.get("id") as string;
-    const token = queryParams.get("token") as string;
+
+    const localStorageString = localStorage.getItem('game' + id?.toString());
+    const [nickname, token] = localStorageString ? localStorageString.split(':') : ['', ''];
 
     let [status, setStatus] = useState<StatusType>({state: 'loading'});
 
     const updateStatus = ():any => {
-        Status(id, token)
+        StatusSubscribe(id, token)
             .then((resp) => {
                 setStatus(resp.data as StatusType);
                 updateStatus();
-                /*setStatus({
-                    state: 'waiting_for_move',
-                    game: {
-                        id: '123',
-                        count: 2,
-                        players: [],
-                        time: 45,
-                        move: 1
-                    }
-                });*/
             })
-            .catch((error) => {
+            .catch((error: AxiosError) => {
                 console.log(error);
+                if (error.code == 'ECONNABORTED' || error.response?.status == 502) {
+                    updateStatus();
+                }
                 //updateStatus();
             });
     }
 
-    useEffect(() => { updateStatus() }, []);
+    useEffect(() => {
+        Status(id, token)
+            .then((resp) => {
+                setStatus(resp.data as StatusType);
+                updateStatus();
+            })
+            .catch((error: AxiosError) => {
+                console.log(error);
+                //updateStatus();
+            });
+    }, []);
 
     let Interface = INTERFACES[status.state] ? INTERFACES[status.state] : INTERFACES['loading'];
 
     return (
         <Container>
-            <Sign status={status} id={id} token={token} />
-            <Interface status={status} id={id} token={token}></Interface>
+            <Sign status={status} id={id} nickname={nickname} />
+            {
+                token
+                    ? <Interface status={status} id={id} token={token}></Interface>
+                    : <div>Вы не являетесь участником данной игры.</div>
+            }
         </Container>
     )
 };

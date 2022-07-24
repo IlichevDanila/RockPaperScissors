@@ -29,7 +29,7 @@ const Line = styled.div`
   margin: 4px;
 `;
 
-const Sign = (props: {status: StatusType, id: Game['id'], token: PlayerToken}) => {
+const Sign = (props: {status: StatusType, id: Game['id'], nickname: string}) => {
 
     const toMain = () => {
         window.open('/', '_self');
@@ -41,7 +41,7 @@ const Sign = (props: {status: StatusType, id: Game['id'], token: PlayerToken}) =
             <SignStyle>
             ID игры: <span>{props.id}</span>
             <Line />
-            Ник: <span>{props.token}</span>
+            Ник: <span>{props.nickname}</span>
         </SignStyle>
     </SignContainer>)
 }

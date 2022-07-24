@@ -3,13 +3,10 @@ import Move from "../api/move";
 import styled, {keyframes} from "styled-components";
 import {Game, PlayerToken, StatusWaitingForMove} from "../utils/types";
 import {Paper, Rock, Scissors} from "../utils/icons";
+import Timer from "./timer";
 
 const Container = styled.div`
   text-align: center;
-  
-  & span {
-    font-weight: 700;
-  }
 `;
 
 const MOVES = {
@@ -97,7 +94,7 @@ const WaitingForMove = (props: {status: StatusWaitingForMove, id: Game['id'], to
                     <Paper />
                 </MoveButton>
             </MovesContainer>
-            осталось секунд: <span>{status.game.time}</span>
+            осталось секунд: <Timer timestamp={status.game.time}></Timer>
         </Container>
     );
 };

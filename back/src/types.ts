@@ -1,3 +1,4 @@
+import {END, LOSE, WAITING_FOR_MOVE, WAITING_FOR_ROUND_START, WAITING_FOR_START} from "./constants";
 
 export interface Player {
     nickname: string;
@@ -60,27 +61,27 @@ export interface setWinnerData {
 
 
 export interface StatusWaitingForStart {
-    state: 'waiting_for_start';
+    state: typeof WAITING_FOR_START;
     game: GameWithRounds;
 }
 
 export interface StatusWaitingForMove {
-    state: 'waiting_for_move';
+    state: typeof WAITING_FOR_MOVE;
     game: GameWithMove;
 }
 
 export interface StatusWaitingForRoundStart {
-    state: 'waiting_for_round_start';
+    state: typeof WAITING_FOR_ROUND_START;
     game: GameWithRounds;
 }
 
 export interface StatusLose {
-    state: 'lose';
+    state: typeof LOSE;
     game: GameWithRounds;
 }
 
 export interface StatusEnd {
-    state: 'end';
+    state: typeof END;
     game: GameWithRounds;
 }
 

@@ -2,6 +2,7 @@ import React from 'react';
 import styled from "styled-components";
 import {Game, Pair, PlayerToken, StatusEnd} from "../utils/types";
 import {getPlayer} from "../utils/functions";
+import Timer from "./timer";
 
 const EndStyle = styled.div`
   text-align: center;

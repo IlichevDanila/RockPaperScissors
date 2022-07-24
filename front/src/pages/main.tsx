@@ -89,7 +89,10 @@ function Main() {
 
 	const connect_ = (id: Game['id']) => {
 		Connect(id, nickname)
-			.then(resp => window.open('game?id=' + id + '&token=' + resp.data.token, '_self'))
+			.then(resp => {
+				localStorage.setItem('game' + id.toString(), resp.data.nickname + ':' + resp.data.token);
+				window.open('game?id=' + id.toString(), '_self')
+			})
 			.catch(error => console.log(error));
 	}
 

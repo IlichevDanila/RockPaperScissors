@@ -3,7 +3,7 @@ import {
     sendError
 } from "./functions";
 import {PORT} from "./constants";
-import {changeRoundState, check, connectToGame, createGame, move, status} from "./db";
+import {changeRoundState, check, checkForUpdates, connectToGame, createGame, move, status} from "./db";
 const app = express();
 
 app.use((req, res, next) => {
@@ -20,7 +20,7 @@ app.get('/create_game', (req, res) => {
 
     return createGame(parseInt(countString))
         .then(id => res.send({id: id}))
-        .catch(error => sendError(res, error));;
+        .catch(error => sendError(res, error));
 });
 
 app.get('/connect', (req, res) => {
@@ -37,7 +37,7 @@ app.get('/connect', (req, res) => {
     }
 
     return connectToGame(parseInt(idString), nickname)
-        .then(token => res.send({token: token}))
+        .then(token => res.send({nickname: nickname, token: token}))
         .catch(error => sendError(res, error));
 });
 
@@ -59,6 +59,22 @@ app.get('/status', (req, res) => {
         .catch(error => sendError(res, error));
 });
 
+app.get('/statusSubscribe', (req, res) => {
+    let idString = req.query.id.toString();
+    if(!/^[0-9]+$/.test(idString))
+    {
+        return sendError(res, 'Game id must be integer');
+    }
+
+    let tokenString = req.query.token.toString();
+    if(!/^[A-z0-9]{64}$/.test(tokenString))
+    {
+        return sendError(res, 'Token must be 64 characters of length and include only letters or numbers');
+    }
+
+    return checkForUpdates(parseInt(idString), tokenString, res);
+});
+
 app.get('/move', (req, res) => {
 
     let idString = req.query.id.toString();
@@ -74,7 +90,7 @@ app.get('/move', (req, res) => {
     }
 
     let moveString = req.query.move.toString();
-    if(!/^1|2|3$/.test(idString))
+    if(!/^1|2|3$/.test(moveString))
     {
         return sendError(res, 'Move value must be 1, 2 or 3');
     }

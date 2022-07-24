@@ -19,7 +19,6 @@ app.get('/create_game', function (req, res) {
     }
     return (0, db_1.createGame)(parseInt(countString))
         .then(function (id) { return res.send({ id: id }); })["catch"](function (error) { return (0, functions_1.sendError)(res, error); });
-    ;
 });
 app.get('/connect', function (req, res) {
     var idString = req.query.id.toString();
@@ -31,7 +30,7 @@ app.get('/connect', function (req, res) {
         return (0, functions_1.sendError)(res, 'Nickname must include only letters or numbers');
     }
     return (0, db_1.connectToGame)(parseInt(idString), nickname)
-        .then(function (token) { return res.send({ token: token }); })["catch"](function (error) { return (0, functions_1.sendError)(res, error); });
+        .then(function (token) { return res.send({ nickname: nickname, token: token }); })["catch"](function (error) { return (0, functions_1.sendError)(res, error); });
 });
 app.get('/status', function (req, res) {
     var idString = req.query.id.toString();
@@ -45,6 +44,17 @@ app.get('/status', function (req, res) {
     return (0, db_1.status)(parseInt(idString), tokenString)
         .then(function (status) { return res.send(status); })["catch"](function (error) { return (0, functions_1.sendError)(res, error); });
 });
+app.get('/statusSubscribe', function (req, res) {
+    var idString = req.query.id.toString();
+    if (!/^[0-9]+$/.test(idString)) {
+        return (0, functions_1.sendError)(res, 'Game id must be integer');
+    }
+    var tokenString = req.query.token.toString();
+    if (!/^[A-z0-9]{64}$/.test(tokenString)) {
+        return (0, functions_1.sendError)(res, 'Token must be 64 characters of length and include only letters or numbers');
+    }
+    return (0, db_1.checkForUpdates)(parseInt(idString), tokenString, res);
+});
 app.get('/move', function (req, res) {
     var idString = req.query.id.toString();
     if (!/^[0-9]+$/.test(idString)) {
@@ -55,7 +65,7 @@ app.get('/move', function (req, res) {
         return (0, functions_1.sendError)(res, 'Token must be 64 characters of length and include only letters or numbers');
     }
     var moveString = req.query.move.toString();
-    if (!/^1|2|3$/.test(idString)) {
+    if (!/^1|2|3$/.test(moveString)) {
         return (0, functions_1.sendError)(res, 'Move value must be 1, 2 or 3');
     }
     return (0, db_1.move)(parseInt(idString), tokenString, parseInt(moveString))

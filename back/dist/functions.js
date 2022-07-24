@@ -11,32 +11,12 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 exports.__esModule = true;
-exports.getGameWithoutLastRound = exports.getGameWithMove = exports.sendError = void 0;
+exports.getGameWithoutLastRound = exports.sendError = void 0;
 function sendError(res, error) {
     res.status(400);
     res.send({ error: error });
 }
 exports.sendError = sendError;
-function getGameWithMove(game, pair) {
-    var game_ = {
-        id: game.id,
-        count: game.count,
-        time: game.time,
-        players: game.players
-    };
-    if (pair) {
-        if (pair.position == 0) {
-            return __assign(__assign({}, game_), { move: pair.player1_move });
-        }
-        else {
-            return __assign(__assign({}, game_), { move: pair.player2_move });
-        }
-    }
-    else {
-        return __assign({}, game_);
-    }
-}
-exports.getGameWithMove = getGameWithMove;
 function getGameWithoutLastRound(game) {
     var game_ = {
         id: game.id,
