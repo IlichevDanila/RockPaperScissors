@@ -1,9 +1,11 @@
 import express from 'express';
 import {
+    changeRoundState,
     sendError
-} from "./functions";
+} from "./function";
 import {PORT} from "./constants";
-import {changeRoundState, check, checkForUpdates, connectToGame, createGame, move, status} from "./db";
+import {check, checkForUpdates, connectToGame, createGame, move, status} from "./main";
+import {Game} from "./types";
 const app = express();
 
 app.use((req, res, next) => {
@@ -100,13 +102,15 @@ app.get('/move', (req, res) => {
         .catch(error => sendError(res, error));
 });
 
-const checking = () => {
-    check().then(
-        games => {
-            games.map(game => changeRoundState(game.id))
-            checking();
-        }
-    );
+const checking = (games: Game[] = []) => {
+    if (games.length) {
+        changeRoundState(games.pop().id).then(result => checking(games));
+    }
+    else {
+        check().then(
+            games_ => checking(games_)
+        );
+    }
 }
 
 checking();

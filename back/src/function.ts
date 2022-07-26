@@ -1,37 +1,28 @@
-import mysql, {ResultSetHeader} from 'mysql2';
 import {
-    Game, GameWithMove,
-    GameWithPlayers,
-    GameWithRounds,
-    PairFromDB,
-    PlayerWithToken,
-    Round,
-    RoundFromDB,
-    setWinnerData,
-    StatusType
+    Game, GameWithMove, GameWithPlayers,
+    GameWithRounds, PairFromDB, PlayerWithToken, Round, RoundFromDB, setWinnerData
 } from "./types";
-import * as crypto from "crypto";
-import {getGameWithoutLastRound, sendError} from "./functions";
-import {
-    DB,
-    END,
-    LOSE,
-    STATUS_NUMBER,
-    WAITING_FOR_MOVE,
-    WAITING_FOR_ROUND_START,
-    WAITING_FOR_START,
-    WinRules
-} from "./constants";
 import {Response} from "express";
+import {pool} from "./db_connect";
+import {END, LOSE, STATUS_NUMBER, WAITING_FOR_MOVE, WAITING_FOR_ROUND_START, WinRules} from "./constants";
+import mysql from "mysql2";
 
-const pool = mysql.createPool({
-    connectionLimit: 5,
-    host: "localhost",
-    user: DB.user,
-    database: "rsp",
-    password: DB.password,
-    namedPlaceholders: true
-}).promise();
+export function sendError(res: Response, error: string) {
+    res.status(400);
+    res.send({error: error});
+}
+
+export function getGameWithoutLastRound(game:GameWithRounds):GameWithRounds
+{
+    let game_ = {
+        id: game.id,
+        count: game.count,
+        time: game.time,
+        players: game.players
+    };
+
+    return {...game_, rounds: game.rounds.slice(0, -1)};
+}
 
 export const getLastRound = (game_id: number) => {
     return new Promise((resolve: (round: RoundFromDB) => void, reject: (error) => void) => {
@@ -134,7 +125,7 @@ export const getGameWithRounds = (game_id: number) => {
                 )
         }).catch(
             error => reject(error)
-        );;
+        );
     });
 }
 
@@ -160,48 +151,8 @@ export const setMove = (move, game_id, round_id, pair_id, position) =>
     pool.query(`UPDATE pair SET player` + (position ? "2" : "1") + `_move = ? WHERE game_id = ? AND round_id = ? AND id = ?`,
         [move, game_id, round_id, pair_id]);
 
-export const createGame = (count: number) => {
-    return new Promise((resolve: (id: number) => void, reject: (error) => void) => {
-        pool.query("INSERT INTO game(count) VALUES (?)", [count])
-            .then(
-                result => resolve((result[0] as ResultSetHeader).insertId)
-            ).catch(
-                error => reject(error)
-            );
-    });
-}
-
-export const connectToGame = (game_id: number, nickname: string) => {
-    return new Promise((resolve: (token: string) => void, reject: (error) => void) => {
-        getGameWithRounds(game_id).then(
-            game => {
-                if (game.count <= game.players.length) {
-                    return reject('Max players count');
-                }
-                if (game.players.find(player => player.nickname == nickname)) {
-                    return reject('Nickname is already used');
-                }
-
-                let token = crypto.createHash('sha256').update(crypto.randomUUID()).digest('hex');
-                pool.query("INSERT INTO player(game_id, nickname, token, status_update) VALUES (?, ?, ?, ?)",
-                    [game_id, nickname, token, STATUS_NUMBER[WAITING_FOR_START]])
-                    .then(result => {
-                        if (game.count - 1 == game.players.length) {
-                            startRound(game.id);
-                        }
-                        return resolve(token)
-                    })
-                    .catch(error => reject(error));
-            }
-        ).catch(error => reject(error));
-    });
-}
-
 export const setStatusSeen = (game_id: number, token: string) => {
     return new Promise((resolve: (result) => void, reject: (error) => void) => {
-        /*console.log(mysql.format("UPDATE player SET seen = 1 WHERE game_id = ?",
-            [game_id]));*/
-
         pool.query("UPDATE player SET seen = 1 WHERE game_id = ? AND token = ?",
             [game_id, token])
             .then(result => resolve(result))
@@ -211,96 +162,9 @@ export const setStatusSeen = (game_id: number, token: string) => {
 
 export const setStatusUpdate = (game_id: number, value: number, token: string = null) => {
     return new Promise((resolve: (result) => void, reject: (error) => void) => {
-        /*console.log("UPDATE player SET status_update = ?, seen = 0 WHERE game_id = ?",
-            [value, game_id]);*/
-
         pool.query("UPDATE player SET status_update = ?, seen = 0 WHERE game_id = ?" + (token ? " AND token = ?" : ""),
             [value, game_id, token])
             .then(result => resolve(result))
-            .catch(error => reject(error));
-    });
-}
-
-export const checkForUpdates = (game_id: number, token: string, res:Response, count = 0) => {
-    if (count >= 60) {
-        res.status(502);
-        return res.send({error: 'Timeout'});
-    }
-    status(game_id, token, 1)
-        .then(status => res.send(status))
-        .catch(error => {
-            if (error.updates === 0) {
-                return setTimeout(() => checkForUpdates(game_id, token, res, count + 1), 1000);
-            }
-            sendError(res, error)
-        });
-}
-
-export const status = (game_id: number, token: string, onlyUnseen: 0 | 1 = 0) => {
-    return new Promise((resolve: (status: StatusType) => void, reject: (error) => void) => {
-        getGameWithRounds(game_id)
-            .then(game => {
-                pool.query("SELECT * FROM player WHERE game_id = ? AND token = ?",
-                    [game_id, token])
-                    .then((result: any) => {
-                        //console.log(result);
-                        if (result[0][0].seen == 0 || !onlyUnseen) {
-                            switch (result[0][0].status_update) {
-                                case 1:
-                                    return setStatusSeen(game_id, token)
-                                        .then(result => resolve({state: WAITING_FOR_START, game: game}))
-                                        .catch(error => reject(error))
-                                    break;
-                                case 2:
-                                    return setStatusSeen(game_id, token)
-                                        .then(result =>
-                                            getGameWithMove(game, token)
-                                                .then(game => resolve({state: WAITING_FOR_MOVE, game: game}))
-                                                .catch(error => reject(error)))
-                                        .catch(error => reject(error))
-                                    break;
-                                case 3:
-                                    return setStatusSeen(game_id, token)
-                                        .then(result => resolve({state: LOSE, game: getGameWithoutLastRound(game)}))
-                                        .catch(error => reject(error))
-                                    break;
-                                case 4:
-                                    return setStatusSeen(game_id, token)
-                                        .then(result => resolve({state: WAITING_FOR_ROUND_START, game: game}))
-                                        .catch(error => reject(error))
-                                    break;
-                                case 5:
-                                    return setStatusSeen(game_id, token)
-                                        .then(result => resolve({state: END, game: game}))
-                                        .catch(error => reject(error))
-                                    break;
-                            }
-                        }
-                        return reject({updates: 0});
-                    })
-                    .catch(error => reject(error));
-            })
-            .catch(error => reject(error));
-    });
-}
-
-export const move = (game_id: number, token: string, move: 1 | 2 | 3) =>
-    new Promise((resolve: (result) => void, reject: (error) => void) => {
-        getPairByPlayer(game_id, token)
-            .then(pair =>
-                setStatusUpdate(game_id, STATUS_NUMBER[WAITING_FOR_MOVE], token)
-                    .then(result =>
-                        setMove(move, game_id, pair.round_id, pair.id, pair.position)
-                            .then(result => resolve(result))
-                            .catch(error => reject(error)))
-                    .catch(error => reject(error)))
-            .catch(error => reject('Player has lost'));
-    });
-
-export const check = () => {
-    return new Promise((resolve: (result: Game[]) => void, reject: (error) => void) => {
-        pool.query("SELECT * FROM game WHERE ended = 0 AND time <= UNIX_TIMESTAMP(NOW())")
-            .then((result: any) => resolve(result[0]))
             .catch(error => reject(error));
     });
 }
@@ -443,7 +307,6 @@ export const getPlayers = (game_id: number) => {
     return new Promise((resolve: (result: {players: PlayerWithToken[], round?: RoundFromDB}) => void, reject: (error) => void) => {
         getLastRound(game_id)
             .then(round => {
-                console.log(round);
                 pool.query(`SELECT * FROM player WHERE game_id = :game_id AND (
 token IN (SELECT player1 FROM pair WHERE (winner = 1 OR winner = 3) AND game_id = :game_id AND round_id = :round_id)
 OR 
@@ -453,7 +316,6 @@ token IN (SELECT player2 FROM pair WHERE (winner = 2 OR winner = 3) AND game_id 
                     .catch(error => reject(error));
             })
             .catch(error => {
-                console.log(error);
                 pool.query("SELECT * FROM player WHERE game_id = :game_id",
                     {game_id: game_id})
                     .then((result: any) => resolve({players: result[0]}))
@@ -465,7 +327,7 @@ token IN (SELECT player2 FROM pair WHERE (winner = 2 OR winner = 3) AND game_id 
 export const createRound = (game_id: number, round_id: number) => {
     return new Promise((resolve: (result) => void, reject: (error) => void) => {
         pool.query(`INSERT INTO round(id, game_id) VALUES(:round_id, :game_id)`,
-                    {game_id: game_id, round_id: round_id})
+            {game_id: game_id, round_id: round_id})
             .then((result: any) => resolve(result))
             .catch(error => reject(error));
     })
@@ -476,7 +338,6 @@ export const startRound = (game_id: number) => {
         getPlayers(game_id).then(
             result => {
                 let players = result.players;
-                console.log(players);
 
                 if (players.length <= 1) {
                     return resolve(result);
@@ -502,20 +363,20 @@ export const startRound = (game_id: number) => {
                                 players.length - 1,
                                 round_id,
                                 game_id,
-                                players[(players.length - 1 + offset) % players.length],
+                                players[(players.length - 1 + offset) % players.length].token,
                                 null
                             ]);
                         }
 
                         pool.query(`INSERT INTO pair(id, round_id, game_id, player1, player2)
-VALUES (?)`, pairs)
+VALUES ?`, [pairs])
                             .then((result: any) =>
                             {
                                 pool.query(`UPDATE player SET status_update = IF(token IN (?), ?, ?), seen = 0 WHERE game_id = ?`,
                                     [players.map(player => player.token),
                                         STATUS_NUMBER[WAITING_FOR_MOVE], STATUS_NUMBER[LOSE], game_id])
                                     .then((result: any) =>
-                                        setTimer(game_id, 30)
+                                        setTimer(game_id, 30 * 2 * 20)
                                             .then(result => resolve(result))
                                             .catch(error => reject(error)))
                                     .catch(error => reject(error));

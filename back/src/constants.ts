@@ -12,8 +12,6 @@ export const DB = {
     password: 'spitintoeternity1572080'
 }
 
-
-
 export const WAITING_FOR_START = 'waiting_for_start';
 export const WAITING_FOR_MOVE = 'waiting_for_move';
 export const LOSE = 'lose';

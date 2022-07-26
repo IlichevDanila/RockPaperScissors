@@ -5,5 +5,5 @@ const emptyPlayer = {
 }
 
 export const getPlayer = (player: Player | undefined):Player => {
-    return player ? player : emptyPlayer;
+    return player?.nickname ? player : emptyPlayer;
 }

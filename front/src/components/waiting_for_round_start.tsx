@@ -1,6 +1,7 @@
 import React from 'react';
 import Round_result from "./round_result";
 import {Game, PlayerToken, StatusWaitingForRoundStart} from "../utils/types";
+import Timer from "./timer";
 
 const WaitingForRoundStart = (props: {status: StatusWaitingForRoundStart, id: Game['id'], token: PlayerToken}) => {
 
@@ -10,7 +11,7 @@ const WaitingForRoundStart = (props: {status: StatusWaitingForRoundStart, id: Ga
         <div>
             <Round_result status={status} id={id} token={token} />
             <br /><br />
-            следующий раунд через {status.game.time} секунд(ы)
+            следующий раунд через <Timer timestamp={status.game.time} /> секунд(ы)
         </div>
     );
 };
