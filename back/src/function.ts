@@ -376,7 +376,7 @@ VALUES ?`, [pairs])
                                     [players.map(player => player.token),
                                         STATUS_NUMBER[WAITING_FOR_MOVE], STATUS_NUMBER[LOSE], game_id])
                                     .then((result: any) =>
-                                        setTimer(game_id, 30 * 2 * 20)
+                                        setTimer(game_id, 30)
                                             .then(result => resolve(result))
                                             .catch(error => reject(error)))
                                     .catch(error => reject(error));
