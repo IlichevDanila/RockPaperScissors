@@ -93,7 +93,7 @@ export const getGameWithRounds = (game_id: number) => {
                     }
                     let last_j = 0;
                     console.log(result[0]);
-                    for (let i = 0; i <= result[0].at(-1).round_id; i++) {
+                    for (let i = 0; i <= result[0][result[0].length - 1].round_id; i++) {
                         let round = {pairs: [], state: 3} as Round;
                         for (let j = last_j; j < result[0].length; j++) {
                             if (result[0][j].round_id == i) {
