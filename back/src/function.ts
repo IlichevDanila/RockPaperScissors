@@ -83,7 +83,7 @@ export const getGameWithPlayers = (game_id: number) => {
 export const getGameWithRounds = (game_id: number) => {
     return new Promise((resolve: (game: GameWithRounds) => void, reject: (error) => void) => {
         getGameWithPlayers(game_id).then(game => {
-            pool.query(`SELECT *, (select nickname from player where token = player1) as player1_nickname, (select nickname from player where token = player2) as player2_nickname FROM pair JOIN round, game WHERE pair.round_id = round.id AND pair.game_id = game.id AND round.game_id = game.id AND game.id = ? ORDER BY pair.round_id, pair.id;`,
+            pool.query(`SELECT *, (select nickname from player where token = player1) as player1_nickname, (select nickname from player where token = player2) as player2_nickname FROM pair JOIN round, game WHERE pair.round_id = round.id AND pair.game_id = game.id AND round.game_id = game.id AND game.id = ? ORDER BY pair.round_id, pair.id`,
                 [game_id])
                 .then((result: any) => {
                     let game_ = game as GameWithRounds;
@@ -120,7 +120,10 @@ export const getGameWithRounds = (game_id: number) => {
                     return resolve(game_);
                 })
                 .catch(
-                    error => reject(error)
+                    error => {
+                        console.log(error)
+                        reject(error)
+                    }
                 )
         }).catch(
             error => reject(error)
