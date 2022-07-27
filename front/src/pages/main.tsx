@@ -11,8 +11,9 @@ const MainStyled = styled.div`
 	grid-gap: 20px;
 	position: fixed;
 	height: 100%;
-	width: 100%;
+	width: calc(100% - 20px);
 	align-content: center;
+	margin: 0 10px;
 `;
 
 const SwitcherContainer = styled.div`
