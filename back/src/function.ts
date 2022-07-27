@@ -92,7 +92,6 @@ export const getGameWithRounds = (game_id: number) => {
                         return resolve(game_);
                     }
                     let last_j = 0;
-                    console.log(result[0]);
                     for (let i = 0; i <= result[0][result[0].length - 1].round_id; i++) {
                         let round = {pairs: [], state: 3} as Round;
                         for (let j = last_j; j < result[0].length; j++) {
@@ -121,10 +120,7 @@ export const getGameWithRounds = (game_id: number) => {
                     return resolve(game_);
                 })
                 .catch(
-                    error => {
-                        console.log(error)
-                        reject(error)
-                    }
+                    error => reject(error)
                 )
         }).catch(
             error => reject(error)
