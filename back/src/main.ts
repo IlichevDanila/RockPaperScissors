@@ -137,7 +137,8 @@ export const move = (game_id: number, token: string, move: 1 | 2 | 3) =>
 
 export const check = () => {
     return new Promise((resolve: (result: Game[]) => void, reject: (error) => void) => {
-        pool.query("SELECT * FROM game WHERE ended = 0 AND time <= UNIX_TIMESTAMP(NOW())")
+        pool.query(`SELECT * FROM game WHERE ended = 0 AND 
+(game.time <= UNIX_TIMESTAMP(NOW()) OR EveryHasMoved(game.id) = 1)`)
             .then((result: any) => resolve(result[0]))
             .catch(error => reject(error));
     });

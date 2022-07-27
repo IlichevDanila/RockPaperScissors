@@ -104,12 +104,14 @@ app.get('/move', (req, res) => {
 
 const checking = (games: Game[] = []) => {
     if (games.length) {
-        changeRoundState(games.pop().id).then(result => checking(games));
+        changeRoundState(games.pop().id)
+            .then(result => checking(games))
+            .catch(error => console.log(error));
     }
     else {
-        check().then(
-            games_ => checking(games_)
-        );
+        check()
+            .then(games_ => checking(games_))
+            .catch(error => console.log(error));
     }
 }
 

@@ -77,7 +77,7 @@ exports.getGameWithPlayers = getGameWithPlayers;
 var getGameWithRounds = function (game_id) {
     return new Promise(function (resolve, reject) {
         (0, exports.getGameWithPlayers)(game_id).then(function (game) {
-            db_connect_1.pool.query("SELECT *, (select nickname from player where token = player1) as player1_nickname, (select nickname from player where token = player2) as player2_nickname FROM pair JOIN round, game WHERE pair.round_id = round.id AND pair.game_id = game.id AND round.game_id = game.id AND game.id = ? ORDER BY pair.round_id, pair.id;", [game_id])
+            db_connect_1.pool.query("SELECT *, (select nickname from player where token = player1) as player1_nickname, (select nickname from player where token = player2) as player2_nickname FROM pair JOIN round, game WHERE pair.round_id = round.id AND pair.game_id = game.id AND round.game_id = game.id AND game.id = ? ORDER BY pair.round_id, pair.id", [game_id])
                 .then(function (result) {
                 var game_ = game;
                 game_.rounds = [];
@@ -85,7 +85,7 @@ var getGameWithRounds = function (game_id) {
                     return resolve(game_);
                 }
                 var last_j = 0;
-                for (var i = 0; i <= result[0].at(-1).round_id; i++) {
+                for (var i = 0; i <= result[0][result[0].length - 1].round_id; i++) {
                     var round = { pairs: [], state: 3 };
                     for (var j = last_j; j < result[0].length; j++) {
                         if (result[0][j].round_id == i) {
@@ -110,7 +110,7 @@ var getGameWithRounds = function (game_id) {
                     game_.rounds.push(round);
                 }
                 return resolve(game_);
-            })["catch"](function (error) { return reject('Error during run function: getGameWithPlayers'); });
+            })["catch"](function (error) { return reject(error); });
         })["catch"](function (error) { return reject(error); });
     });
 };

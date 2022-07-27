@@ -74,10 +74,12 @@ app.get('/move', function (req, res) {
 var checking = function (games) {
     if (games === void 0) { games = []; }
     if (games.length) {
-        (0, function_1.changeRoundState)(games.pop().id).then(function (result) { return checking(games); });
+        (0, function_1.changeRoundState)(games.pop().id)
+            .then(function (result) { return checking(games); })["catch"](function (error) { return console.log(error); });
     }
     else {
-        (0, main_1.check)().then(function (games_) { return checking(games_); });
+        (0, main_1.check)()
+            .then(function (games_) { return checking(games_); })["catch"](function (error) { return console.log(error); });
     }
 };
 checking();

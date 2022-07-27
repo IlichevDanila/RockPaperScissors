@@ -73,3 +73,8 @@ export type StatusType = StatusLoading
     | StatusWaitingForRoundStart
     | StatusLose
     | StatusEnd;
+
+export interface ErrorType {
+    code: number;
+    text: string;
+}

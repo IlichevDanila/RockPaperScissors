@@ -76,32 +76,57 @@ const Switcher = styled.div`
 	}
 `;
 
+const ErrorContainer = styled.div`
+	color: red;
+	text-align: center;
+`;
+
 function Main() {
 
 	let [pos, setPos] = useState(0);
 	let [count, setCount] = useState('');
 	let [id, setId] = useState('');
 	let [nickname, setNickname] = useState('');
+	let [error, setError] = useState<string | null>(null);
 
 	const switcher = () => {
 		setPos(1 - pos);
 	};
 
 	const connect_ = (id: Game['id']) => {
+		setError(null);
 		Connect(id, nickname)
 			.then(resp => {
 				localStorage.setItem('game' + id.toString(), resp.data.nickname + ':' + resp.data.token);
 				window.open('game?id=' + id.toString(), '_self')
 			})
-			.catch(error => console.log(error));
+			.catch(error => {
+				if (error.response && error.response.data) {
+					let errorText = error.response.data.error;
+					if (errorText) {
+						switch (errorText) {
+							case 'Max players count':
+								setError('Достигнуто максимальное количество игроков')
+								break;
+							case 'Nickname is already used':
+								setError('Никнейм занят')
+								break;
+							case 'Game do not exist':
+								setError('Игры с таким id не существует')
+								break;
+							default:
+								break;
+						}
+					}
+				}
+				console.log(error)
+			});
 	}
 
 	const createGame = () => {
-		if (/^[1-9]\d*$/.test(count)) {
+		if (/^\d+$/.test(count) && parseInt(count)) {
 			CreateGame(parseInt(count))
-				.then(resp => {
-					connect_(resp.data.id);
-				})
+				.then(resp => connect_(resp.data.id))
 				.catch(error => console.log(error));
 		}
 	}
@@ -122,6 +147,10 @@ function Main() {
 
   return (
     <MainStyled>
+		{error ?
+			<ErrorContainer>{error}</ErrorContainer>
+			: null
+		}
 		<NicknameContainer>
 			<Input type="text" placeholder="Ник"
 				   className={errorNickname() ? 'error' : ''}

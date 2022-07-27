@@ -6,7 +6,7 @@ import {Response} from "express";
 import {pool} from "./db_connect";
 import {END, LOSE, STATUS_NUMBER, WAITING_FOR_MOVE, WAITING_FOR_ROUND_START, WinRules} from "./constants";
 
-export function sendError(res: Response, error: string) {
+export function sendError(res: Response, error: any) {
     res.status(400);
     res.send({error: error});
 }
@@ -124,7 +124,7 @@ export const getGameWithRounds = (game_id: number) => {
                 )
         }).catch(
             error => reject(error)
-        );
+        )
     });
 }
 

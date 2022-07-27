@@ -126,7 +126,7 @@ var move = function (game_id, token, move) {
 exports.move = move;
 var check = function () {
     return new Promise(function (resolve, reject) {
-        db_connect_1.pool.query("SELECT * FROM game WHERE ended = 0 AND time <= UNIX_TIMESTAMP(NOW())")
+        db_connect_1.pool.query("SELECT * FROM game WHERE ended = 0 AND \n(game.time <= UNIX_TIMESTAMP(NOW()) OR EveryHasMoved(game.id) = 1)")
             .then(function (result) { return resolve(result[0]); })["catch"](function (error) { return reject(error); });
     });
 };
