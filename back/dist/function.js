@@ -311,7 +311,7 @@ var startRound = function (game_id) {
                     db_connect_1.pool.query("UPDATE player SET status_update = IF(token IN (?), ?, ?), seen = 0 WHERE game_id = ?", [players.map(function (player) { return player.token; }),
                         constants_1.STATUS_NUMBER[constants_1.WAITING_FOR_MOVE], constants_1.STATUS_NUMBER[constants_1.LOSE], game_id])
                         .then(function (result) {
-                        return (0, exports.setTimer)(game_id, 30 * 2 * 20)
+                        return (0, exports.setTimer)(game_id, 30)
                             .then(function (result) { return resolve(result); })["catch"](function (error) { return reject(error); });
                     })["catch"](function (error) { return reject(error); });
                 })["catch"](function (error) { return reject(error); });

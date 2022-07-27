@@ -5,7 +5,6 @@ import {
 import {Response} from "express";
 import {pool} from "./db_connect";
 import {END, LOSE, STATUS_NUMBER, WAITING_FOR_MOVE, WAITING_FOR_ROUND_START, WinRules} from "./constants";
-import mysql from "mysql2";
 
 export function sendError(res: Response, error: string) {
     res.status(400);
@@ -121,7 +120,7 @@ export const getGameWithRounds = (game_id: number) => {
                     return resolve(game_);
                 })
                 .catch(
-                    error => reject('Error during run function: getGameWithPlayers')
+                    error => reject(error)
                 )
         }).catch(
             error => reject(error)

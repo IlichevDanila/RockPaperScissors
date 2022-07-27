@@ -1,4 +1,4 @@
 const Constants = {
-    api_host: 'http://82.146.39.125:3000'
+    api_host: process.env.REACT_APP_API_HOST
 };
 export default Constants;

@@ -1,3 +1,5 @@
+import dotenv from 'dotenv';
+dotenv.config();
 
 export const WinRules = {
     0: {0: 0, 1: 2, 2: 2, 3: 2},
@@ -6,10 +8,10 @@ export const WinRules = {
     3: {0: 1, 1: 1, 2: 2, 3: 3}
 };
 
-export const PORT = 3000;
+export const PORT = process.env.PORT;
 export const DB = {
-    user: 'root',
-    password: 'spitintoeternity1572080'
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD
 }
 
 export const WAITING_FOR_START = 'waiting_for_start';
